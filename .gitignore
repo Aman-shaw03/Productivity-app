@@ -1,0 +1,14 @@
+# Dependency folders
+node_modules/
+dist/
+
+# Environment secrets (CRITICAL)
+.env
+*.env
+
+# Docker data (Don't upload your actual database rows!)
+postgres_data/
+
+# OS specific files
+.DS_Store
+Thumbs.db
