@@ -2,9 +2,12 @@ import express from "express";
 import "dotenv/config";
 // import dotenv from 'dotenv'
 // dotenv.config({path: '/.env'})
+import cors from "cors"
+import helmet from "helmet"
 const app = express();
 const PORT = process.env.PORT;
-
+app.use(cors())
+app.use(helmet())
 app.get("/", (req, res) => {
   res.send("hello world this is a Express Backend");
 });
