@@ -1,22 +1,28 @@
-import express from "express";
-import "dotenv/config";
+import express from 'express';
+import 'dotenv/config';
 // import dotenv from 'dotenv'
 // dotenv.config({path: '/.env'})
-import cors from "cors"
-import helmet from "helmet"
+import cors from 'cors';
+import helmet from 'helmet';
+import bodyparser from 'body-parser';
 const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(helmet());
+
 const PORT = process.env.PORT;
-app.use(cors())
-app.use(helmet())
-app.get("/", (req, res) => {
-  res.send("hello world this is a Express Backend");
+
+app.get('/', (req, res) => {
+    res.send('hello world this is a Express Backend');
 });
 
 app.listen(PORT, () => {
-//   console.log(process.env);
-  console.log(`Port is listening on ${PORT} localhost`);
+    //   console.log(process.env);
+    console.log(`Port is listening on ${PORT} localhost`);
 });
 
-app.get("/new", (req, res) => {
-  console.log("bacchi bamai!!!");
+app.get('/new', (req, res) => {
+    console.log('bacchi bamai!!!');
 });
