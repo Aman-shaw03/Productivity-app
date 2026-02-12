@@ -3,6 +3,9 @@ import { Sequelize } from 'sequelize';
 import 'dotenv/config';
 import cors from 'cors';
 import helmet from 'helmet';
+import { sequelized } from './config/db.config.js';
+import todoRoutes from "./routes/todo.routes.js"
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,27 +15,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 
-// The URL from your docker-compose.yml
-const DB_URL =
-    process.env.DB_URL || 'postgres://aman:secretpassword@localhost:5432/default_database';
-
 // Initialize Sequelize INSIDE startServer to avoid connection during module load
-let sequelized;
-
+app.use('/api/todos', todoRoutes)
 const startServer = async () => {
     let retries = 5;
     while (retries > 0) {
         try {
             // Create Sequelize instance ONLY when we're ready to connect
-            sequelized = new Sequelize(DB_URL, {
-                dialect: 'postgres',
-                logging: false,
-                pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
-            });
 
             await sequelized.authenticate();
             console.log('--- DATABASE CONNECTED ---');
             await sequelized.sync({ alter: true });
+            console.log('✅ Tables Synced');
 
             // Start Express ONLY after successful connection
             app.listen(PORT, () => {
