@@ -1,14 +1,70 @@
+# services:
+#     db:
+#         image: postgres:15-alpine
+#         restart: always
+#         # Database initialization environment variables
+#         # These MUST match your application configuration
+#         environment:
+#             POSTGRES_USER: aman # PostgreSQL superuser
+#             POSTGRES_PASSWORD: mysecretpassword # User password
+#             POSTGRES_DB: todo_db # Initial database to create
+
+#         # Port mapping: host:container
+#         ports:
+#             - '5432:5432' # Expose PostgreSQL port 5432 to localhost
+
+#         # Volume for persistent data storage
+#         volumes:
+#             - postgres_data:/var/lib/postgresql/data # Database files persist here
+
+#         # Health check to ensure DB is ready before app connects
+#         healthcheck:
+#             test: ['CMD-SHELL', 'pg_isready -U aman']
+#             interval: 10s
+#             timeout: 5s
+#             retries: 5
+
+# volumes:
+#     # Named volume for PostgreSQL data persistence
+#     postgres_data:
+
 services:
-    db:
-        image: postgres:15-alpine
+    database:
+        image: 'postgres:latest' ## create this "Database service" with this image
         restart: always
-        environment:
-            POSTGRES_USER: aman_user
-            POSTGRES_PASSWORD: mysecretpassword
-            POSTGRES_DB: todo_db
         ports:
-            - '5432:5432'
+            - 5432:5432   ##we dont need to expose port here coz we are using database and backend app on the same network so they can talk to each other over the same network "testing-pg"
+        environment:
+            POSTGRES_USER: aman
+            POSTGRES_PASSWORD: secretpassword
+            POSTGRES_DB: default_database
         volumes:
-            - postgres_data:/var/lib/postgresql/data
+            - postgres_data:/var/lib/postgresql/ ##take the data from /var/lib/postgresql and put it in local machine volume postgres_data
+        networks:
+            - testing-pg
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U aman -d default_database']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 15s
+
+    #--- BCAKEND APPLICATION SERVICE ---#
+    app-backend:
+        build: . ## first check for Dockerfile in the dir and run that
+        ports:
+            - '3000:3000'
+        environment:
+            DB_URL: postgres://aman:secretpassword@database:5432/default_database
+        depends_on:
+            database:
+                condition: service_healthy
+        networks:
+            - testing-pg
+
+networks:
+    testing-pg:
+        driver: bridge
+
 volumes:
     postgres_data:
